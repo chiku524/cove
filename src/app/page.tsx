@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, Code2, Plug } from "lucide-react";
-import { LandingDemo } from "@/components/landing-demo";
+import { ChatPanel } from "@/components/chat-panel";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
+import { sampleQuestions } from "@/lib/questions";
+import { getDemoBot } from "@/lib/store";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const demo = await getDemoBot();
+
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />
@@ -59,15 +66,63 @@ export default function HomePage() {
           </div>
           <div>
             <p className="text-muted-foreground mb-3 text-xs tracking-wide uppercase">
-              Live demo · Northstar Help
+              Live demo{demo ? ` · ${demo.name}` : ""}
             </p>
-            <LandingDemo />
+            {demo ? (
+              <ChatPanel
+                apiKey={demo.apiKey}
+                welcome={demo.welcomeMessage}
+                botName={demo.name}
+                suggestions={sampleQuestions(demo.articles)}
+              />
+            ) : (
+              <div className="flex h-[560px] items-center justify-center rounded-2xl border border-border bg-card px-6 text-center text-sm">
+                Create a bot in the dashboard to start the live demo.
+              </div>
+            )}
             <p className="text-muted-foreground mt-3 text-xs">
-              Try “reset my password”, “invite a teammate”, or “API tokens”.
+              Tap a suggestion or ask about billing, invites, or API tokens.
             </p>
           </div>
         </section>
+
+        <section className="grid gap-6">
+          <h2 className="font-heading text-3xl">Three steps, then ship it</h2>
+          <ol className="grid gap-4 md:grid-cols-3">
+            <li className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-primary text-xs font-medium tracking-wide uppercase">
+                01
+              </p>
+              <h3 className="mt-2 text-base font-medium">Create a bot</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                Name it, set the tone, and write a welcome line customers will
+                see in the widget.
+              </p>
+            </li>
+            <li className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-primary text-xs font-medium tracking-wide uppercase">
+                02
+              </p>
+              <h3 className="mt-2 text-base font-medium">Teach it your docs</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                Add short articles. Cove cites the ones it used, and suggests
+                the next question to ask.
+              </p>
+            </li>
+            <li className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-primary text-xs font-medium tracking-wide uppercase">
+                03
+              </p>
+              <h3 className="mt-2 text-base font-medium">Call it from anywhere</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                Copy the API key into curl, the TypeScript SDK, MCP, or a one-line
+                embed script.
+              </p>
+            </li>
+          </ol>
+        </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

@@ -43,7 +43,7 @@ export function CreateBotDialog({
       setOpen(false);
       setName("");
       setDescription("");
-      router.push(`/dashboard/bots/${data.bot.id}`);
+      router.push(`/dashboard/bots/${data.bot.id}?tab=knowledge`);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create bot.");

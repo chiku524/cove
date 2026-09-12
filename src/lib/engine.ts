@@ -1,4 +1,5 @@
 import { createId } from "@/lib/ids";
+import { followUpSuggestions, sampleQuestions } from "@/lib/questions";
 import type {
   Article,
   Bot,
@@ -132,6 +133,7 @@ export async function answerQuestion(input: {
     return {
       reply: input.bot.welcomeMessage,
       citations: [],
+      suggestions: sampleQuestions(input.bot.articles),
       handoff: false,
       engine: "retrieval",
     };
@@ -144,6 +146,7 @@ export async function answerQuestion(input: {
           ? "Glad that helped."
           : "Glad that helped. Ask another question anytime.",
       citations: [],
+      suggestions: sampleQuestions(input.bot.articles, 3),
       handoff: false,
       engine: "retrieval",
     };
@@ -153,6 +156,7 @@ export async function answerQuestion(input: {
     return {
       reply: input.bot.handoffMessage,
       citations: [],
+      suggestions: sampleQuestions(input.bot.articles, 3),
       handoff: true,
       engine: "retrieval",
     };
@@ -163,6 +167,7 @@ export async function answerQuestion(input: {
     return {
       reply: emptyReply(input.bot, query),
       citations: [],
+      suggestions: sampleQuestions(input.bot.articles, 3),
       handoff: true,
       engine: "retrieval",
     };
@@ -173,12 +178,17 @@ export async function answerQuestion(input: {
     title: hit.article.title,
     score: Number(hit.score.toFixed(2)),
   }));
+  const suggestions = followUpSuggestions(
+    input.bot,
+    citations.map((item) => item.title),
+  );
 
   const llm = await maybeLlmAnswer(input.bot, query, hits);
   if (llm) {
     return {
       reply: llm,
       citations,
+      suggestions,
       handoff: false,
       engine: "llm",
     };
@@ -187,6 +197,7 @@ export async function answerQuestion(input: {
   return {
     reply: composeAnswer(input.bot, query, hits),
     citations,
+    suggestions,
     handoff: hits[0].score < 5,
     engine: "retrieval",
   };

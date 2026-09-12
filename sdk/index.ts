@@ -19,6 +19,7 @@ export type ChatResult = {
   reply: string;
   conversationId: string;
   citations: Citation[];
+  suggestions: string[];
   handoff: boolean;
   engine: "retrieval" | "llm";
 };

@@ -53,6 +53,7 @@ export async function POST(request: Request) {
     reply: answer.reply,
     conversationId: conversation.id,
     citations: answer.citations,
+    suggestions: answer.suggestions,
     handoff: answer.handoff,
     engine: answer.engine,
   });

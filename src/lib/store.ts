@@ -204,6 +204,15 @@ export async function deleteArticle(botId: string, articleId: string) {
   });
 }
 
+export async function conversationCounts() {
+  const data = await readStore();
+  const counts: Record<string, number> = {};
+  for (const conversation of data.conversations) {
+    counts[conversation.botId] = (counts[conversation.botId] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export async function getConversation(id: string) {
   const data = await readStore();
   return data.conversations.find((item) => item.id === id) ?? null;

@@ -1,9 +1,13 @@
 import { CopyBlock } from "@/components/copy-block";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getPublicOrigin } from "@/lib/origin";
 
-const origin = process.env.COVE_PUBLIC_URL || "http://127.0.0.1:43127";
+export const dynamic = "force-dynamic";
 
-export default function DocsPage() {
+export default async function DocsPage() {
+  const origin = await getPublicOrigin();
+
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />
@@ -14,13 +18,32 @@ export default function DocsPage() {
             Cove is a single service with three doors: REST, TypeScript SDK, and
             MCP. Every request is scoped to one bot by its API key.
           </p>
+          <nav className="text-muted-foreground mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            <a href="#rest" className="hover:text-foreground">
+              REST
+            </a>
+            <a href="#sdk" className="hover:text-foreground">
+              SDK
+            </a>
+            <a href="#mcp" className="hover:text-foreground">
+              MCP
+            </a>
+            <a href="#embed" className="hover:text-foreground">
+              Embed
+            </a>
+            <a href="#llm" className="hover:text-foreground">
+              Optional LLM
+            </a>
+          </nav>
         </div>
 
-        <section className="grid gap-3">
+        <section id="rest" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">1. REST API</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Send a customer message to <code>/api/v1/chat</code>. Pass the same
-            <code> conversationId</code> to keep follow-ups in context.
+            <code> conversationId</code> to keep follow-ups in context. The
+            response includes <code>citations</code> and{" "}
+            <code>suggestions</code> for follow-up chips.
           </p>
           <CopyBlock
             code={`curl -s ${origin}/api/v1/chat \\
@@ -29,13 +52,12 @@ export default function DocsPage() {
   -d '{"message":"How do I reset my password?"}'`}
           />
           <p className="text-muted-foreground text-sm">
-            Search without answering: <code>POST /api/v1/search</code> with
-            {" "}
+            Search without answering: <code>POST /api/v1/search</code> with{" "}
             <code>{`{ "query": "billing" }`}</code>.
           </p>
         </section>
 
-        <section className="grid gap-3">
+        <section id="sdk" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">2. TypeScript SDK</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Copy <code>sdk/index.ts</code> into your app. It is a thin fetch
@@ -54,11 +76,11 @@ const result = await cove.chat({
   metadata: { userId: "user_123" },
 });
 
-console.log(result.reply, result.citations);`}
+console.log(result.reply, result.citations, result.suggestions);`}
           />
         </section>
 
-        <section className="grid gap-3">
+        <section id="mcp" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">3. MCP</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Point Cursor or another MCP client at the stdio server, or POST
@@ -87,7 +109,7 @@ console.log(result.reply, result.citations);`}
           />
         </section>
 
-        <section className="grid gap-3">
+        <section id="embed" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">4. Embed widget</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Drop this script on any page for a floating Ask button. The key is
@@ -102,7 +124,7 @@ console.log(result.reply, result.citations);`}
           />
         </section>
 
-        <section className="grid gap-3">
+        <section id="llm" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">Optional LLM</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Cove answers from your articles with a retrieval engine so the demo
@@ -112,6 +134,7 @@ console.log(result.reply, result.citations);`}
           </p>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

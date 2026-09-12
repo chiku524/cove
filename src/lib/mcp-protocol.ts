@@ -118,7 +118,11 @@ async function callTool(
       answer.citations.length > 0
         ? `\n\nSources: ${answer.citations.map((item) => item.title).join(", ")}`
         : "";
-    return `${answer.reply}${cites}`;
+    const next =
+      answer.suggestions.length > 0
+        ? `\n\nSuggested: ${answer.suggestions.join(" · ")}`
+        : "";
+    return `${answer.reply}${cites}${next}`;
   }
 
   if (name === "cove_search") {

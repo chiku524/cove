@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { CopyBlock } from "@/components/copy-block";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { Bot } from "@/lib/types";
 
 export function IntegratePanel({
@@ -82,6 +83,7 @@ Content-Type: application/json
 
   return (
     <div className="grid gap-4">
+      <ApiTester apiKey={bot.apiKey} origin={origin} />
       <Card>
         <CardHeader>
           <CardTitle className="text-base">API key</CardTitle>
@@ -164,4 +166,61 @@ Content-Type: application/json
 function maskKey(value: string) {
   if (value.length < 12) return "•".repeat(value.length);
   return `${value.slice(0, 10)}…${value.slice(-4)}`;
+}
+
+function ApiTester({ apiKey, origin }: { apiKey: string; origin: string }) {
+  const [message, setMessage] = useState("How do I get started?");
+  const [pending, setPending] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  async function run(event: React.FormEvent) {
+    event.preventDefault();
+    setPending(true);
+    setResult(null);
+    try {
+      const response = await fetch("/api/v1/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Request failed");
+      setResult(data.reply);
+    } catch (error) {
+      setResult(error instanceof Error ? error.message : "Request failed");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Try the API</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-3">
+        <p className="text-muted-foreground text-sm">
+          Sends the same POST your SDK will make to {origin}/api/v1/chat.
+        </p>
+        <form onSubmit={run} className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            aria-label="Test question"
+          />
+          <Button type="submit" disabled={pending || !message.trim()}>
+            {pending ? "Sending…" : "Send"}
+          </Button>
+        </form>
+        {result ? (
+          <p className="bg-muted rounded-lg p-3 text-sm leading-relaxed whitespace-pre-wrap">
+            {result}
+          </p>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
 }

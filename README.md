@@ -55,7 +55,7 @@ const cove = new Cove({
   baseUrl: "http://127.0.0.1:43127",
 });
 
-const { reply, citations } = await cove.chat({
+const { reply, citations, suggestions } = await cove.chat({
   message: "How do I invite a teammate?",
 });
 ```

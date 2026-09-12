@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileNav } from "@/components/mobile-nav";
 import { Button } from "@/components/ui/button";
 
 export function SiteHeader() {
@@ -11,17 +12,15 @@ export function SiteHeader() {
           </span>
           <span>Cove</span>
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="hidden items-center gap-1 sm:flex">
           <Button asChild variant="ghost" size="sm">
             <Link href="/docs">Docs</Link>
           </Button>
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/dashboard">Bots</Link>
-          </Button>
           <Button asChild size="sm">
-            <Link href="/dashboard">Open dashboard</Link>
+            <Link href="/dashboard">Dashboard</Link>
           </Button>
         </nav>
+        <MobileNav />
       </div>
     </header>
   );

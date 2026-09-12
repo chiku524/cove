@@ -1,14 +1,13 @@
-import Link from "next/link";
+import { BotList } from "@/components/bot-list";
 import { CreateBotDialog } from "@/components/create-bot-dialog";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { listBots } from "@/lib/store";
+import { conversationCounts, listBots } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const bots = await listBots();
+  const [bots, counts] = await Promise.all([listBots(), conversationCounts()]);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -24,40 +23,9 @@ export default async function DashboardPage() {
           </div>
           <CreateBotDialog />
         </div>
-        {bots.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-start gap-4 p-8">
-              <div>
-                <h2 className="text-lg font-medium">No bots yet</h2>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Create one, add a few articles, then paste the API key into
-                  your app.
-                </p>
-              </div>
-              <CreateBotDialog triggerLabel="Create your first bot" />
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {bots.map((bot) => (
-              <Link key={bot.id} href={`/dashboard/bots/${bot.id}`}>
-                <Card className="h-full transition-colors hover:bg-muted/40">
-                  <CardHeader className="flex flex-row items-start justify-between gap-3">
-                    <CardTitle className="text-lg">{bot.name}</CardTitle>
-                    <Badge variant="outline">
-                      {bot.articles.length} articles
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="text-muted-foreground grid gap-2 text-sm">
-                    <p>{bot.description || "No description yet."}</p>
-                    <p className="font-mono text-xs">{bot.slug}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
+        <BotList bots={bots} counts={counts} />
       </main>
+      <SiteFooter />
     </div>
   );
 }
