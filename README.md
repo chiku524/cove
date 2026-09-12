@@ -46,7 +46,7 @@ The public Northstar demo is seeded into Postgres (`bot_northstar`, key `cove_li
 
 Customers pay in the dashboard under **Billing → Upgrade to Pro**. That opens Stripe Checkout for the $19/month Cove Pro subscription. After they subscribe, **Manage subscription** opens the Customer Portal.
 
-The Stripe sandbox is claimed. Test with card `4242 4242 4242 4242`, any future expiry, and any CVC. Live charges need Stripe Dashboard activation and live keys in Vercel (`STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`).
+Production Checkout on [covetechnologies.vercel.app](https://covetechnologies.vercel.app) uses the live Stripe account. A successful Pro upgrade is a real $19 charge. Local and preview deploys still use test keys (`4242 4242 4242 4242`).
 
 If you will charge US or EU customers, enable Stripe Tax and add a registration before turning on automatic tax. Stripe collects no tax until a registration is active. See [Collect taxes for recurring payments](https://docs.stripe.com/billing/taxes/collect-taxes).
 
