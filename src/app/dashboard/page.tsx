@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { BotList } from "@/components/bot-list";
-import { CreateBotDialog } from "@/components/create-bot-dialog";
 import { PlanUsage } from "@/components/plan-usage";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/session";
 import { conversationCounts, getWorkspaceUsage, listBots } from "@/lib/store";
 
@@ -30,7 +30,17 @@ export default async function DashboardPage() {
               endpoint. These stay in your account.
             </p>
           </div>
-          <CreateBotDialog disabled={usage.bots >= usage.plan.bots} />
+          <Button asChild disabled={usage.bots >= usage.plan.bots}>
+            <Link
+              href={
+                usage.bots >= usage.plan.bots
+                  ? "/dashboard/billing"
+                  : "/dashboard/new"
+              }
+            >
+              {usage.bots >= usage.plan.bots ? "Upgrade to add a bot" : "New bot"}
+            </Link>
+          </Button>
         </div>
         <PlanUsage usage={usage} />
         {usage.bots >= usage.plan.bots ? (

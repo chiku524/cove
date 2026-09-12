@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { CreateBotDialog } from "@/components/create-bot-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { formatRelative } from "@/lib/format";
@@ -36,7 +36,9 @@ export function BotList({
               app.
             </p>
           </div>
-          <CreateBotDialog triggerLabel="Create your first bot" />
+          <Button asChild>
+            <Link href="/dashboard/new">Create your first bot</Link>
+          </Button>
         </CardContent>
       </Card>
     );
