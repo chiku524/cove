@@ -19,8 +19,7 @@ function createAuth() {
     trustedOrigins: [
       "http://127.0.0.1:43127",
       "http://localhost:43127",
-      "https://cove-rho-lac.vercel.app",
-      "https://cove-nico-builds.vercel.app",
+      "https://covetechnologies.vercel.app",
       ...(process.env.COVE_PUBLIC_URL
         ? [process.env.COVE_PUBLIC_URL.replace(/\/$/, "")]
         : []),

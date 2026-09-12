@@ -1,6 +1,6 @@
 # Cove
 
-Live: [cove-rho-lac.vercel.app](https://cove-rho-lac.vercel.app) · Source: [github.com/chiku524/cove](https://github.com/chiku524/cove)
+Live: [covetechnologies.vercel.app](https://covetechnologies.vercel.app) · Source: [github.com/chiku524/cove](https://github.com/chiku524/cove)
 
 Cove is an AI support-bot service you can drop into a product. Create a bot, teach it your docs, then call it from a **REST API**, a **TypeScript SDK**, or **MCP**.
 
@@ -19,7 +19,7 @@ npm run db:seed
 npm run dev
 ```
 
-Open [http://127.0.0.1:43127](http://127.0.0.1:43127). Production is on Vercel at [https://cove-rho-lac.vercel.app](https://cove-rho-lac.vercel.app). Pushes to `main` on GitHub deploy automatically.
+Open [http://127.0.0.1:43127](http://127.0.0.1:43127). Production is on Vercel at [https://covetechnologies.vercel.app](https://covetechnologies.vercel.app). Pushes to `main` on GitHub deploy automatically.
 
 - `/` — live demo against the seeded Northstar bot
 - `/sign-up` — create an account (email + password)
