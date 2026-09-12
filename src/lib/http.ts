@@ -38,3 +38,17 @@ export function unauthorized(message = "Sign in to continue.") {
 export function planLimit(code: string, message: string) {
   return json({ error: "plan_limit", code, message }, { status: 402 });
 }
+
+export async function handlePublic(run: () => Promise<Response>) {
+  try {
+    return await run();
+  } catch {
+    return json(
+      {
+        error: "unavailable",
+        message: "Cove is temporarily unavailable.",
+      },
+      { status: 503 },
+    );
+  }
+}

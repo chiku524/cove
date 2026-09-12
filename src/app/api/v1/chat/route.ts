@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { requireBot } from "@/lib/auth";
 import { runBotChat } from "@/lib/chat";
-import { badRequest, corsPreflight, json, planLimit } from "@/lib/http";
+import { badRequest, corsPreflight, handlePublic, json, planLimit } from "@/lib/http";
 import { PlanLimitError } from "@/lib/plans";
 
 export const dynamic = "force-dynamic";
@@ -17,22 +17,24 @@ export function OPTIONS() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireBot(request);
-  if (auth.error) return auth.error;
+  return handlePublic(async () => {
+    const auth = await requireBot(request);
+    if (auth.error) return auth.error;
 
-  const body = await request.json().catch(() => null);
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return badRequest(parsed.error.issues[0]?.message ?? "Invalid chat payload.");
-  }
-
-  try {
-    const answer = await runBotChat(auth.bot, parsed.data);
-    return json(answer);
-  } catch (error) {
-    if (error instanceof PlanLimitError) {
-      return planLimit(error.code, error.message);
+    const body = await request.json().catch(() => null);
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      return badRequest(parsed.error.issues[0]?.message ?? "Invalid chat payload.");
     }
-    throw error;
-  }
+
+    try {
+      const answer = await runBotChat(auth.bot, parsed.data);
+      return json(answer);
+    } catch (error) {
+      if (error instanceof PlanLimitError) {
+        return planLimit(error.code, error.message);
+      }
+      throw error;
+    }
+  });
 }
