@@ -1,8 +1,14 @@
 import Link from "next/link";
+import { HeaderAuth } from "@/components/header-auth";
 import { MobileNav } from "@/components/mobile-nav";
-import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/session";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const user = await getCurrentUser();
+  const headerUser = user
+    ? { name: user.name, email: user.email, plan: user.plan }
+    : null;
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
@@ -12,15 +18,8 @@ export function SiteHeader() {
           </span>
           <span>Cove</span>
         </Link>
-        <nav className="hidden items-center gap-1 sm:flex">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/docs">Docs</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
-        </nav>
-        <MobileNav />
+        <HeaderAuth user={headerUser} />
+        <MobileNav user={headerUser} />
       </div>
     </header>
   );

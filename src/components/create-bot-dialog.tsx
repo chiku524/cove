@@ -18,8 +18,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 export function CreateBotDialog({
   triggerLabel = "New bot",
+  disabled = false,
 }: {
   triggerLabel?: string;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -55,7 +57,7 @@ export function CreateBotDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{triggerLabel}</Button>
+        <Button disabled={disabled}>{triggerLabel}</Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={onCreate} className="grid gap-4">

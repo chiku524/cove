@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
 import { getPublicOrigin } from "@/lib/origin";
+import { getCurrentUser } from "@/lib/session";
 import { getBot } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -16,13 +17,14 @@ export default async function BotPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const [{ id }, { tab }, origin] = await Promise.all([
+  const [{ id }, { tab }, origin, user] = await Promise.all([
     params,
     searchParams,
     getPublicOrigin(),
+    getCurrentUser(),
   ]);
   const bot = await getBot(id);
-  if (!bot) notFound();
+  if (!user || !bot || bot.userId !== user.id) notFound();
 
   return (
     <div className="flex min-h-full flex-col">

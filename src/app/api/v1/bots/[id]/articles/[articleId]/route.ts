@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { badRequest, corsPreflight, json, notFound } from "@/lib/http";
+import { requireOwnedBot } from "@/lib/session";
 import { deleteArticle, updateArticle } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; articleId: string }> },
 ) {
   const { id, articleId } = await params;
+  const auth = await requireOwnedBot(request, id);
+  if (auth.error) return auth.error;
   const body = await request.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -30,10 +33,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string; articleId: string }> },
 ) {
   const { id, articleId } = await params;
+  const auth = await requireOwnedBot(request, id);
+  if (auth.error) return auth.error;
   const ok = await deleteArticle(id, articleId);
   if (!ok) return notFound("Article");
   return json({ ok: true });

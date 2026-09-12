@@ -4,23 +4,49 @@ Live: [cove-rho-lac.vercel.app](https://cove-rho-lac.vercel.app) · Source: [git
 
 Cove is an AI support-bot service you can drop into a product. Create a bot, teach it your docs, then call it from a **REST API**, a **TypeScript SDK**, or **MCP**.
 
-It ships with a working dashboard, a seeded Northstar Help bot, and a retrieval engine so chat works without an LLM key. Set `AI_GATEWAY_API_KEY` or `OPENAI_API_KEY` if you want model-generated replies over the same articles.
+It ships with a working dashboard, a seeded Northstar Help demo, and a retrieval engine so chat works without an LLM key. Set `AI_GATEWAY_API_KEY` or `OPENAI_API_KEY` if you want model-generated replies over the same articles.
+
+Accounts, durable storage, and billing are included so you can list Cove on developer directories and sell Pro through Stripe Checkout.
 
 ## Run locally
 
 ```bash
 npm install
 cp .env.example .env.local
+# fill DATABASE_URL, BETTER_AUTH_SECRET, and Stripe keys
+npx dotenv -e .env.local -- drizzle-kit push
+npm run db:seed
 npm run dev
 ```
 
 Open [http://127.0.0.1:43127](http://127.0.0.1:43127). Production is on Vercel at [https://cove-rho-lac.vercel.app](https://cove-rho-lac.vercel.app). Pushes to `main` on GitHub deploy automatically.
 
-- `/` — live demo against the seeded bot
-- `/dashboard` — create bots, edit knowledge, copy integration snippets
+- `/` — live demo against the seeded Northstar bot
+- `/sign-up` — create an account (email + password)
+- `/dashboard` — your bots, knowledge, and integration snippets
+- `/dashboard/billing` — Free vs Pro, Stripe Checkout and Customer Portal
 - `/docs` — API, SDK, MCP, and embed notes
 
-Bots are stored in `.data/store.json` locally. Delete that file to reseed. On Vercel the store uses `/tmp`, so data resets across cold starts — fine for the demo, add a database before you rely on it in production.
+## Auth, storage, and billing
+
+These are the pieces a marketplace checkout path needs:
+
+| Piece | What Cove uses |
+| --- | --- |
+| Auth | Better Auth, email and password, session cookies |
+| Durable storage | Neon Postgres via Drizzle (`bots`, `articles`, conversations, usage) |
+| Billing | Stripe Checkout subscriptions + Customer Portal + webhooks |
+
+**Free:** 1 bot, 8 articles, 200 chats / month.  
+**Pro:** $19 / month, 25 bots, 500 articles, 20,000 chats / month.
+
+Bot CRUD is scoped to the signed-in user. Chat, search, and MCP stay API-key authenticated so widgets and agents do not need a Cove login.
+
+The public Northstar demo is seeded into Postgres (`bot_northstar`, key `cove_live_demo_northstar`) and is not part of anyone’s plan limits.
+
+Stripe sandbox keys expire if you used `stripe sandbox create` without claiming the account. Claim it from the Stripe CLI output, then keep `STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, and `STRIPE_WEBHOOK_SECRET` in Vercel.
+
+If you will charge US or EU customers, enable Stripe Tax and add a registration before turning on automatic tax. Stripe collects no tax until a registration is active. See [Collect taxes for recurring payments](https://docs.stripe.com/billing/taxes/collect-taxes).
 
 ## Integrate
 
@@ -42,8 +68,10 @@ Useful routes:
 | `POST` | `/api/v1/chat` | bot key | Answer a question |
 | `POST` | `/api/v1/search` | bot key | Search articles |
 | `GET` | `/api/v1/conversations/:id` | bot key | Replay a thread |
-| `GET/POST` | `/api/v1/bots` | none | List / create bots |
+| `GET/POST` | `/api/v1/bots` | session | List / create your bots |
 | `POST` | `/api/mcp` | bot key | MCP JSON-RPC |
+| `POST` | `/api/stripe/checkout` | session | Start Pro Checkout |
+| `POST` | `/api/stripe/webhook` | Stripe signature | Apply subscription status |
 
 ### TypeScript SDK
 

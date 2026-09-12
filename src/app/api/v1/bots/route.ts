@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { badRequest, corsPreflight, json } from "@/lib/http";
+import { badRequest, corsPreflight, json, planLimit } from "@/lib/http";
+import { PlanLimitError } from "@/lib/plans";
+import { requireUser } from "@/lib/session";
 import { createBot, listBots } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -17,17 +19,28 @@ export function OPTIONS() {
   return corsPreflight();
 }
 
-export async function GET() {
-  const bots = await listBots();
+export async function GET(request: Request) {
+  const auth = await requireUser(request);
+  if (auth.error) return auth.error;
+  const bots = await listBots(auth.user.id);
   return json({ bots });
 }
 
 export async function POST(request: Request) {
+  const auth = await requireUser(request);
+  if (auth.error) return auth.error;
   const body = await request.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) {
     return badRequest(parsed.error.issues[0]?.message ?? "Invalid bot payload.");
   }
-  const bot = await createBot(parsed.data);
-  return json({ bot }, { status: 201 });
+  try {
+    const bot = await createBot(auth.user.id, parsed.data);
+    return json({ bot }, { status: 201 });
+  } catch (error) {
+    if (error instanceof PlanLimitError) {
+      return planLimit(error.code, error.message);
+    }
+    throw error;
+  }
 }

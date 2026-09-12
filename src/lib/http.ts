@@ -30,3 +30,11 @@ export function notFound(entity = "Resource") {
 export function badRequest(message: string) {
   return json({ error: "bad_request", message }, { status: 400 });
 }
+
+export function unauthorized(message = "Sign in to continue.") {
+  return json({ error: "unauthorized", message }, { status: 401 });
+}
+
+export function planLimit(code: string, message: string) {
+  return json({ error: "plan_limit", code, message }, { status: 402 });
+}

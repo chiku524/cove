@@ -1,9 +1,15 @@
 import { z } from "zod";
 import { requireBot } from "@/lib/auth";
 import { answerQuestion, toAssistantMessage } from "@/lib/engine";
-import { badRequest, corsPreflight, json } from "@/lib/http";
+import { badRequest, corsPreflight, json, planLimit } from "@/lib/http";
 import { createId } from "@/lib/ids";
-import { appendMessages, upsertConversation } from "@/lib/store";
+import { PlanLimitError } from "@/lib/plans";
+import {
+  appendMessages,
+  assertChatRoom,
+  incrementChatUsage,
+  upsertConversation,
+} from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +33,17 @@ export async function POST(request: Request) {
     return badRequest(parsed.error.issues[0]?.message ?? "Invalid chat payload.");
   }
 
+  if (auth.bot.userId && !auth.bot.isDemo) {
+    try {
+      await assertChatRoom(auth.bot.userId);
+    } catch (error) {
+      if (error instanceof PlanLimitError) {
+        return planLimit(error.code, error.message);
+      }
+      throw error;
+    }
+  }
+
   const conversation = await upsertConversation({
     id: parsed.data.conversationId,
     botId: auth.bot.id,
@@ -48,6 +65,9 @@ export async function POST(request: Request) {
   const assistant = toAssistantMessage(answer);
 
   await appendMessages(conversation.id, [userMessage, assistant]);
+  if (auth.bot.userId && !auth.bot.isDemo) {
+    await incrementChatUsage(auth.bot.userId).catch(() => undefined);
+  }
 
   return json({
     reply: answer.reply,

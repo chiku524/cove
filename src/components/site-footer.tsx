@@ -9,8 +9,11 @@ export function SiteFooter() {
           <Link href="/docs" className="hover:text-foreground">
             Docs
           </Link>
-          <Link href="/dashboard" className="hover:text-foreground">
-            Dashboard
+          <Link href="/sign-up" className="hover:text-foreground">
+            Start free
+          </Link>
+          <Link href="/dashboard/billing" className="hover:text-foreground">
+            Billing
           </Link>
         </div>
       </div>

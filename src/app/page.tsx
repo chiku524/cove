@@ -31,8 +31,8 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/dashboard">
-                  Open dashboard
+                <Link href="/sign-up">
+                  Start free
                   <ArrowRight />
                 </Link>
               </Button>
@@ -83,6 +83,33 @@ export default async function HomePage() {
             <p className="text-muted-foreground mt-3 text-xs">
               Tap a suggestion or ask about billing, invites, or API tokens.
             </p>
+          </div>
+        </section>
+
+        <section className="grid gap-6">
+          <h2 className="font-heading text-3xl">Plans that match a listing</h2>
+          <p className="text-muted-foreground max-w-2xl text-sm leading-relaxed">
+            Discovery directories can link here this week. Selling through
+            checkout needs an account, durable bots, and a subscription — those
+            are live.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-xs font-medium tracking-wide uppercase">Free</p>
+              <p className="mt-2 text-2xl font-medium">$0</p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                1 bot, 8 articles, 200 chats / month. Enough to integrate and
+                list Cove.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-primary/40 bg-card p-5">
+              <p className="text-xs font-medium tracking-wide uppercase">Pro</p>
+              <p className="mt-2 text-2xl font-medium">$19 / month</p>
+              <p className="text-muted-foreground mt-2 text-sm">
+                25 bots, 500 articles, 20,000 chats / month. Checkout is handled
+                by Stripe.
+              </p>
+            </div>
           </div>
         </section>
 

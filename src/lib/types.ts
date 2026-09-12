@@ -10,6 +10,7 @@ export type Article = {
 
 export type Bot = {
   id: string;
+  userId?: string | null;
   name: string;
   slug: string;
   description: string;

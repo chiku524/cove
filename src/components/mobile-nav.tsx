@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import type { HeaderUser } from "@/components/header-auth";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -11,9 +13,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { authClient } from "@/lib/auth-client";
 
-export function MobileNav() {
+export function MobileNav({ user }: { user: HeaderUser | null }) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  async function signOut() {
+    setOpen(false);
+    await authClient.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -37,11 +48,36 @@ export function MobileNav() {
               Docs
             </Link>
           </Button>
-          <Button asChild className="justify-start">
-            <Link href="/dashboard" onClick={() => setOpen(false)}>
-              Dashboard
-            </Link>
-          </Button>
+          {user ? (
+            <>
+              <Button asChild variant="ghost" className="justify-start">
+                <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  Dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="justify-start">
+                <Link href="/dashboard/billing" onClick={() => setOpen(false)}>
+                  Billing
+                </Link>
+              </Button>
+              <Button variant="ghost" className="justify-start" onClick={signOut}>
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" className="justify-start">
+                <Link href="/sign-in" onClick={() => setOpen(false)}>
+                  Sign in
+                </Link>
+              </Button>
+              <Button asChild className="justify-start">
+                <Link href="/sign-up" onClick={() => setOpen(false)}>
+                  Start free
+                </Link>
+              </Button>
+            </>
+          )}
         </nav>
       </SheetContent>
     </Sheet>

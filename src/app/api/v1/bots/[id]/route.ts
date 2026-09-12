@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { badRequest, corsPreflight, json, notFound } from "@/lib/http";
-import { deleteBot, getBot, rotateApiKey, updateBot } from "@/lib/store";
+import { requireOwnedBot } from "@/lib/session";
+import { deleteBot, rotateApiKey, updateBot } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,13 @@ export function OPTIONS() {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const bot = await getBot(id);
-  if (!bot) return notFound("Bot");
-  return json({ bot });
+  const auth = await requireOwnedBot(request, id);
+  if (auth.error) return auth.error;
+  return json({ bot: auth.bot });
 }
 
 export async function PATCH(
@@ -33,6 +34,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const auth = await requireOwnedBot(request, id);
+  if (auth.error) return auth.error;
   const body = await request.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) {
@@ -45,10 +48,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+  const auth = await requireOwnedBot(request, id);
+  if (auth.error) return auth.error;
   const ok = await deleteBot(id);
   if (!ok) return notFound("Bot");
   return json({ ok: true });

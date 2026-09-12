@@ -34,6 +34,9 @@ export default async function DocsPage() {
             <a href="#llm" className="hover:text-foreground">
               Optional LLM
             </a>
+            <a href="#accounts" className="hover:text-foreground">
+              Accounts
+            </a>
           </nav>
         </div>
 
@@ -131,6 +134,16 @@ console.log(result.reply, result.citations, result.suggestions);`}
             works without a model key. Set <code>AI_GATEWAY_API_KEY</code> or{" "}
             <code>OPENAI_API_KEY</code> to generate replies with an LLM while
             still grounding on the same knowledge base.
+          </p>
+        </section>
+
+        <section id="accounts" className="grid scroll-mt-20 gap-3">
+          <h2 className="text-xl font-medium">Accounts and plans</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Creating and editing bots requires a signed-in Cove account. Chat,
+            search, and MCP still authenticate with the bot API key so agents
+            and widgets do not need a user session. Free includes one bot, eight
+            articles, and 200 chats per month. Pro is $19/month.
           </p>
         </section>
       </main>
