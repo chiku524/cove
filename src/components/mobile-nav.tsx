@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import type { HeaderUser } from "@/components/header-auth";
@@ -14,16 +13,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
+import { navigate } from "@/lib/nav";
 
 export function MobileNav({ user }: { user: HeaderUser | null }) {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
 
   async function signOut() {
     setOpen(false);
     await authClient.signOut();
-    router.push("/");
-    router.refresh();
+    navigate("/");
   }
 
   return (

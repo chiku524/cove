@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { navigate } from "@/lib/nav";
 
 export type HeaderUser = {
   name: string;
@@ -20,8 +20,6 @@ export type HeaderUser = {
 };
 
 export function HeaderAuth({ user }: { user: HeaderUser | null }) {
-  const router = useRouter();
-
   if (!user) {
     return (
       <div className="hidden items-center gap-1 sm:flex">
@@ -40,8 +38,7 @@ export function HeaderAuth({ user }: { user: HeaderUser | null }) {
 
   async function signOut() {
     await authClient.signOut();
-    router.push("/");
-    router.refresh();
+    navigate("/");
   }
 
   return (

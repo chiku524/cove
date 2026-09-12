@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { navigate } from "@/lib/nav";
 
 export function CreateBotDialog({
   triggerLabel = "New bot",
@@ -23,7 +23,6 @@ export function CreateBotDialog({
   triggerLabel?: string;
   disabled?: boolean;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,16 +36,17 @@ export function CreateBotDialog({
     try {
       const response = await fetch("/api/v1/bots", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description }),
+        signal: AbortSignal.timeout(20_000),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Could not create bot.");
       setOpen(false);
       setName("");
       setDescription("");
-      router.push(`/dashboard/bots/${data.bot.id}?tab=knowledge`);
-      router.refresh();
+      navigate(`/dashboard/bots/${data.bot.id}?tab=knowledge`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create bot.");
     } finally {

@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { navigate } from "@/lib/nav";
 
 function safeNext(value: string | null) {
   if (value && value.startsWith("/dashboard")) return value;
@@ -20,7 +20,6 @@ export function AuthForm({
   mode: "sign-in" | "sign-up";
   nextPath?: string | null;
 }) {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,13 +34,21 @@ export function AuthForm({
     try {
       const result =
         mode === "sign-up"
-          ? await authClient.signUp.email({ name, email, password })
-          : await authClient.signIn.email({ email, password });
+          ? await authClient.signUp.email({
+              name,
+              email,
+              password,
+              callbackURL: next,
+            })
+          : await authClient.signIn.email({
+              email,
+              password,
+              callbackURL: next,
+            });
       if (result.error) {
         throw new Error(result.error.message || "Could not authenticate.");
       }
-      router.push(next);
-      router.refresh();
+      navigate(next);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not authenticate.");
     } finally {

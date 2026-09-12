@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { navigate } from "@/lib/nav";
 import { sampleQuestions } from "@/lib/questions";
 import type { Bot } from "@/lib/types";
 
@@ -52,7 +53,10 @@ export function BotWorkspace({
   async function remove() {
     setDeleting(true);
     const response = await fetch(`/api/v1/bots/${bot.id}`, { method: "DELETE" });
-    if (response.ok) router.push("/dashboard");
+    if (response.ok) {
+      navigate("/dashboard");
+      return;
+    }
     setDeleting(false);
   }
 
