@@ -81,6 +81,12 @@ export default async function BillingPage({
           hasCustomer={Boolean(user.stripeCustomerId)}
         />
         <p className="text-muted-foreground text-xs leading-relaxed">
+          Test payments use Stripe Checkout. In this sandbox, card{" "}
+          <span className="font-mono text-foreground">4242 4242 4242 4242</span>,
+          any future expiry, and any CVC will succeed. Live charges need a
+          claimed Stripe account and live keys.
+        </p>
+        <p className="text-muted-foreground text-xs leading-relaxed">
           If you will charge US or EU customers, enable Stripe Tax and add a
           registration before turning on automatic tax. Stripe collects no tax
           until a registration is active. See{" "}

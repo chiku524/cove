@@ -44,7 +44,9 @@ Bot CRUD is scoped to the signed-in user. Chat, search, and MCP stay API-key aut
 
 The public Northstar demo is seeded into Postgres (`bot_northstar`, key `cove_live_demo_northstar`) and is not part of anyone’s plan limits.
 
-Stripe sandbox keys expire if you used `stripe sandbox create` without claiming the account. Claim it from the Stripe CLI output, then keep `STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, and `STRIPE_WEBHOOK_SECRET` in Vercel.
+Customers pay in the dashboard under **Billing → Upgrade to Pro**. That opens Stripe Checkout for the $19/month Cove Pro subscription. After they subscribe, **Manage subscription** opens the Customer Portal.
+
+The Stripe sandbox is claimed. Test with card `4242 4242 4242 4242`, any future expiry, and any CVC. Live charges need Stripe Dashboard activation and live keys in Vercel (`STRIPE_SECRET_KEY`, `STRIPE_PRO_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`).
 
 If you will charge US or EU customers, enable Stripe Tax and add a registration before turning on automatic tax. Stripe collects no tax until a registration is active. See [Collect taxes for recurring payments](https://docs.stripe.com/billing/taxes/collect-taxes).
 

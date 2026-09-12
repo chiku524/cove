@@ -45,6 +45,8 @@ export async function POST(request: Request) {
     cancel_url: `${origin}/dashboard/billing?checkout=canceled`,
     client_reference_id: auth.user.id,
     metadata: { userId: auth.user.id },
+    billing_address_collection: "required",
+    tax_id_collection: { enabled: true },
     subscription_data: {
       metadata: { userId: auth.user.id },
     },
