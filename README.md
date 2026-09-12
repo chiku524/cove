@@ -18,7 +18,7 @@ Open [http://127.0.0.1:43127](http://127.0.0.1:43127).
 - `/dashboard` — create bots, edit knowledge, copy integration snippets
 - `/docs` — API, SDK, MCP, and embed notes
 
-Bots are stored in `.data/store.json`. Delete that file to reseed.
+Bots are stored in `.data/store.json` locally. Delete that file to reseed. On Vercel the store uses `/tmp`, so data resets across cold starts — fine for the demo, add a database before you rely on it in production.
 
 ## Integrate
 
