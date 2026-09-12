@@ -27,3 +27,36 @@ export function checkoutIntegrationId() {
 export function planFromSubscriptionStatus(status: string | null | undefined) {
   return status === "active" || status === "trialing" ? "pro" : "free";
 }
+
+const OPEN_SUBSCRIPTION_STATUSES = new Set([
+  "active",
+  "trialing",
+  "past_due",
+  "unpaid",
+  "incomplete",
+  "paused",
+]);
+
+export function hasOpenSubscription(
+  subscriptionId?: string | null,
+  status?: string | null,
+) {
+  return Boolean(subscriptionId && status && OPEN_SUBSCRIPTION_STATUSES.has(status));
+}
+
+export function subscriptionIdFromInvoice(invoice: Stripe.Invoice) {
+  const parent = invoice.parent;
+  if (parent?.type === "subscription_details") {
+    const sub = parent.subscription_details?.subscription;
+    if (typeof sub === "string") return sub;
+    if (sub && typeof sub === "object" && "id" in sub) return sub.id;
+  }
+  const legacy = (
+    invoice as Stripe.Invoice & {
+      subscription?: string | Stripe.Subscription | null;
+    }
+  ).subscription;
+  if (typeof legacy === "string") return legacy;
+  if (legacy && typeof legacy === "object") return legacy.id;
+  return null;
+}

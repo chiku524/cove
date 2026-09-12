@@ -79,6 +79,7 @@ Content-Type: application/json
   src="${origin}/embed.js"
   data-api-key="${bot.apiKey}"
   data-base-url="${origin}"
+  data-title="${bot.name}"
 ></script>`;
 
   return (

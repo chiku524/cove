@@ -5,6 +5,7 @@ import { updateUserBilling } from "@/lib/store";
 import {
   checkoutIntegrationId,
   getStripe,
+  hasOpenSubscription,
   stripeConfigured,
 } from "@/lib/stripe";
 
@@ -25,6 +26,21 @@ export async function POST(request: Request) {
 
   const stripe = getStripe();
   const origin = await getPublicOrigin();
+
+  if (
+    hasOpenSubscription(
+      auth.user.stripeSubscriptionId,
+      auth.user.stripeSubscriptionStatus,
+    ) &&
+    auth.user.stripeCustomerId
+  ) {
+    const portal = await stripe.billingPortal.sessions.create({
+      customer: auth.user.stripeCustomerId,
+      return_url: `${origin}/dashboard/billing`,
+    });
+    return Response.json({ url: portal.url });
+  }
+
   let customerId = auth.user.stripeCustomerId;
 
   if (!customerId) {
@@ -47,6 +63,10 @@ export async function POST(request: Request) {
     metadata: { userId: auth.user.id },
     billing_address_collection: "required",
     tax_id_collection: { enabled: true },
+    customer_update: { address: "auto", name: "auto" },
+    ...(process.env.STRIPE_AUTOMATIC_TAX === "1"
+      ? { automatic_tax: { enabled: true } }
+      : {}),
     subscription_data: {
       metadata: { userId: auth.user.id },
     },

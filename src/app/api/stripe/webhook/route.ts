@@ -5,7 +5,11 @@ import {
   getUserRecord,
   updateUserBilling,
 } from "@/lib/store";
-import { getStripe, planFromSubscriptionStatus } from "@/lib/stripe";
+import {
+  getStripe,
+  planFromSubscriptionStatus,
+  subscriptionIdFromInvoice,
+} from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -43,6 +47,23 @@ async function resolveUserId(input: {
     if (bySub) return bySub.id;
   }
   return null;
+}
+
+async function applyInvoice(invoice: Stripe.Invoice) {
+  const subscriptionId = subscriptionIdFromInvoice(invoice);
+  if (!subscriptionId) return;
+  const customerId =
+    typeof invoice.customer === "string"
+      ? invoice.customer
+      : invoice.customer?.id;
+  const userId = await resolveUserId({
+    userId: invoice.metadata?.userId ?? invoice.parent?.subscription_details?.metadata?.userId,
+    customerId,
+    subscriptionId,
+  });
+  if (!userId) return;
+  const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
+  await applySubscription(userId, subscription, customerId);
 }
 
 export async function POST(request: Request) {
@@ -94,7 +115,9 @@ export async function POST(request: Request) {
   if (
     event.type === "customer.subscription.created" ||
     event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.deleted"
+    event.type === "customer.subscription.deleted" ||
+    event.type === "customer.subscription.paused" ||
+    event.type === "customer.subscription.resumed"
   ) {
     const subscription = event.data.object as Stripe.Subscription;
     const userId = await resolveUserId({
@@ -108,6 +131,10 @@ export async function POST(request: Request) {
     if (userId) {
       await applySubscription(userId, subscription);
     }
+  }
+
+  if (event.type === "invoice.paid" || event.type === "invoice.payment_failed") {
+    await applyInvoice(event.data.object as Stripe.Invoice);
   }
 
   return Response.json({ received: true });

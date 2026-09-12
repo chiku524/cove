@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   articles,
@@ -90,6 +90,7 @@ async function uniqueSlug(base: string, excludeId?: string) {
       .where(eq(bots.slug, slug))
       .limit(1);
     if (!existing || existing.id === excludeId) return slug;
+    if (n >= 50) return `${base}-${Date.now().toString(36)}`;
     slug = `${base}-${n}`;
     n += 1;
   }
@@ -165,26 +166,19 @@ export async function assertChatRoom(userId: string) {
 }
 
 export async function incrementChatUsage(userId: string) {
-  const db = getDb();
   const month = currentMonth();
-  const [existing] = await db
-    .select()
-    .from(usageMonth)
-    .where(and(eq(usageMonth.userId, userId), eq(usageMonth.month, month)))
-    .limit(1);
-  if (existing) {
-    await db
-      .update(usageMonth)
-      .set({ chats: sql`${usageMonth.chats} + 1` })
-      .where(eq(usageMonth.id, existing.id));
-    return;
-  }
-  await db.insert(usageMonth).values({
-    id: createId("usage"),
-    userId,
-    month,
-    chats: 1,
-  });
+  await getDb()
+    .insert(usageMonth)
+    .values({
+      id: createId("usage"),
+      userId,
+      month,
+      chats: 1,
+    })
+    .onConflictDoUpdate({
+      target: [usageMonth.userId, usageMonth.month],
+      set: { chats: sql`${usageMonth.chats} + 1` },
+    });
 }
 
 export async function listBots(userId: string) {
@@ -198,18 +192,13 @@ export async function listBots(userId: string) {
 }
 
 export async function getBot(id: string) {
-  const [row] = await getDb()
+  const rows = await getDb()
     .select()
     .from(bots)
-    .where(eq(bots.id, id))
-    .limit(1);
-  if (row) return hydrate(row);
-  const [bySlug] = await getDb()
-    .select()
-    .from(bots)
-    .where(eq(bots.slug, id))
-    .limit(1);
-  return bySlug ? hydrate(bySlug) : null;
+    .where(or(eq(bots.id, id), eq(bots.slug, id)))
+    .limit(2);
+  const row = rows.find((item) => item.id === id) ?? rows[0];
+  return row ? hydrate(row) : null;
 }
 
 export async function getBotByApiKey(apiKey: string) {

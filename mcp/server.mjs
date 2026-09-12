@@ -86,5 +86,33 @@ server.registerTool(
   },
 );
 
+server.registerTool(
+  "cove_list_articles",
+  {
+    title: "List Cove articles",
+    description: "List knowledge article titles and tags for the connected bot.",
+    inputSchema: {},
+  },
+  async () => {
+    const response = await fetch(`${API_URL}/api/v1/articles`, {
+      headers: { Authorization: `Bearer ${API_KEY}` },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || `Cove API ${response.status}`);
+    }
+    const text =
+      data.articles?.length > 0
+        ? data.articles
+            .map(
+              (article) =>
+                `- ${article.title}${article.tags?.length ? ` [${article.tags.join(", ")}]` : ""}`,
+            )
+            .join("\n")
+        : "This bot has no articles yet.";
+    return { content: [{ type: "text", text }] };
+  },
+);
+
 const transport = new StdioServerTransport();
 await server.connect(transport);
