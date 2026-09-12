@@ -42,7 +42,9 @@ export async function PATCH(
     return badRequest(parsed.error.issues[0]?.message ?? "Invalid update.");
   }
   const { rotateKey, ...patch } = parsed.data;
-  const bot = rotateKey ? await rotateApiKey(id) : await updateBot(id, patch);
+  const updated = Object.keys(patch).length > 0 ? await updateBot(id, patch) : auth.bot;
+  if (!updated) return notFound("Bot");
+  const bot = rotateKey ? await rotateApiKey(id) : updated;
   if (!bot) return notFound("Bot");
   return json({ bot });
 }

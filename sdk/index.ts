@@ -74,6 +74,23 @@ export class Cove {
     );
   }
 
+  async widget() {
+    return this.request<{
+      bot: {
+        id: string;
+        name: string;
+        welcomeMessage: string;
+        suggestions: string[];
+      };
+    }>("/api/v1/widget");
+  }
+
+  async articles() {
+    return this.request<{
+      articles: { id: string; title: string; tags: string[] }[];
+    }>("/api/v1/articles");
+  }
+
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,

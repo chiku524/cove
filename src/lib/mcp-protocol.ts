@@ -1,5 +1,6 @@
-import { answerQuestion } from "@/lib/engine";
+import { runBotChat } from "@/lib/chat";
 import { searchKnowledge } from "@/lib/engine";
+import { PlanLimitError } from "@/lib/plans";
 import type { Bot } from "@/lib/types";
 
 type JsonRpc = {
@@ -44,13 +45,12 @@ export async function handleMcp(bot: Bot, payload: JsonRpc) {
         content: [{ type: "text", text }],
       });
     } catch (error) {
+      const message =
+        error instanceof PlanLimitError || error instanceof Error
+          ? error.message
+          : "Tool failed";
       return result(id, {
-        content: [
-          {
-            type: "text",
-            text: error instanceof Error ? error.message : "Tool failed",
-          },
-        ],
+        content: [{ type: "text", text: message }],
         isError: true,
       });
     }
@@ -77,6 +77,10 @@ function tools() {
         type: "object",
         properties: {
           question: { type: "string", description: "Customer question" },
+          conversationId: {
+            type: "string",
+            description: "Optional conversation id to keep context",
+          },
         },
         required: ["question"],
       },
@@ -109,11 +113,9 @@ async function callTool(
   if (name === "cove_ask") {
     const question = String(args.question ?? "").trim();
     if (!question) throw new Error("question is required");
-    const answer = await answerQuestion({
-      bot,
-      message: question,
-      history: [],
-    });
+    const conversationId =
+      typeof args.conversationId === "string" ? args.conversationId : undefined;
+    const answer = await runBotChat(bot, { message: question, conversationId });
     const cites =
       answer.citations.length > 0
         ? `\n\nSources: ${answer.citations.map((item) => item.title).join(", ")}`

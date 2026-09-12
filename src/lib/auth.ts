@@ -1,26 +1,22 @@
+import { json } from "@/lib/http";
 import { getBotByApiKey } from "@/lib/store";
 import type { Bot } from "@/lib/types";
 
 export function readApiKey(request: Request) {
   const header = request.headers.get("authorization") ?? "";
   const bearer = header.match(/^Bearer\s+(.+)$/i)?.[1];
-  const query = new URL(request.url).searchParams.get("apiKey");
-  return (
-    bearer?.trim() ||
-    request.headers.get("x-api-key")?.trim() ||
-    query?.trim() ||
-    ""
-  );
+  return bearer?.trim() || request.headers.get("x-api-key")?.trim() || "";
 }
 
-export async function requireBot(request: Request): Promise<
-  | { bot: Bot; error?: undefined }
-  | { bot?: undefined; error: Response }
+export async function requireBot(
+  request: Request,
+): Promise<
+  { bot: Bot; error?: undefined } | { bot?: undefined; error: Response }
 > {
   const apiKey = readApiKey(request);
   if (!apiKey) {
     return {
-      error: Response.json(
+      error: json(
         {
           error: "missing_api_key",
           message:
@@ -33,7 +29,7 @@ export async function requireBot(request: Request): Promise<
   const bot = await getBotByApiKey(apiKey);
   if (!bot) {
     return {
-      error: Response.json(
+      error: json(
         { error: "invalid_api_key", message: "No bot matches that API key." },
         { status: 401 },
       ),

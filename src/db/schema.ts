@@ -1,5 +1,6 @@
 import {
   boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -20,7 +21,10 @@ export const user = pgTable("user", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   stripeSubscriptionStatus: text("stripe_subscription_status"),
-});
+}, (table) => [
+  index("user_stripe_customer_idx").on(table.stripeCustomerId),
+  index("user_stripe_subscription_idx").on(table.stripeSubscriptionId),
+]);
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -80,7 +84,7 @@ export const bots = pgTable("bots", {
   isDemo: boolean("is_demo").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => [index("bots_user_id_idx").on(table.userId)]);
 
 export const articles = pgTable("articles", {
   id: text("id").primaryKey(),
@@ -91,7 +95,7 @@ export const articles = pgTable("articles", {
   body: text("body").notNull(),
   tags: text("tags").array().notNull().default([]),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => [index("articles_bot_id_idx").on(table.botId)]);
 
 export const conversations = pgTable("conversations", {
   id: text("id").primaryKey(),
@@ -101,7 +105,7 @@ export const conversations = pgTable("conversations", {
   metadata: jsonb("metadata").$type<Record<string, string>>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => [index("conversations_bot_id_idx").on(table.botId)]);
 
 export const messages = pgTable("messages", {
   id: text("id").primaryKey(),
@@ -112,7 +116,7 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   citations: jsonb("citations"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+}, (table) => [index("messages_conversation_id_idx").on(table.conversationId)]);
 
 export const usageMonth = pgTable(
   "usage_month",

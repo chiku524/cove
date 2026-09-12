@@ -70,6 +70,8 @@ Useful routes:
 | `POST` | `/api/v1/chat` | bot key | Answer a question |
 | `POST` | `/api/v1/search` | bot key | Search articles |
 | `GET` | `/api/v1/conversations/:id` | bot key | Replay a thread |
+| `GET` | `/api/v1/widget` | bot key | Bot name, welcome, suggested questions |
+| `GET` | `/api/v1/articles` | bot key | Article titles and tags |
 | `GET/POST` | `/api/v1/bots` | session | List / create your bots |
 | `POST` | `/api/mcp` | bot key | MCP JSON-RPC |
 | `POST` | `/api/stripe/checkout` | session | Start Pro Checkout |
@@ -126,8 +128,11 @@ HTTP JSON-RPC lives at `/api/mcp`. Tools: `cove_ask`, `cove_search`, `cove_list_
   src="http://127.0.0.1:43127/embed.js"
   data-api-key="cove_live_..."
   data-base-url="http://127.0.0.1:43127"
+  data-position="right"
 ></script>
 ```
+
+The widget uses the bot’s own welcome message and name (not the Northstar demo), shows citations and suggested follow-ups, and goes full-screen on small viewports. Optional: `data-title`, `data-accent`.
 
 ## Optional LLM
 

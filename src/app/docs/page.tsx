@@ -56,7 +56,8 @@ export default async function DocsPage() {
           />
           <p className="text-muted-foreground text-sm">
             Search without answering: <code>POST /api/v1/search</code> with{" "}
-            <code>{`{ "query": "billing" }`}</code>.
+            <code>{`{ "query": "billing" }`}</code>. Widget chrome (name,
+            welcome, suggestions) is <code>GET /api/v1/widget</code>.
           </p>
         </section>
 
@@ -115,7 +116,11 @@ console.log(result.reply, result.citations, result.suggestions);`}
         <section id="embed" className="grid scroll-mt-20 gap-3">
           <h2 className="text-xl font-medium">4. Embed widget</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Drop this script on any page for a floating Ask button. The key is
+            Drop this script on any page for a floating Ask button. The widget
+            loads the bot name, welcome line, and suggested questions from{" "}
+            <code>GET /api/v1/widget</code>, then chats through the same{" "}
+            <code>/api/v1/chat</code> route as the dashboard playground —
+            including citations, follow-up chips, and a typing state. The key is
             treated as a publishable widget key.
           </p>
           <CopyBlock
@@ -123,8 +128,16 @@ console.log(result.reply, result.citations, result.suggestions);`}
   src="${origin}/embed.js"
   data-api-key="cove_live_..."
   data-base-url="${origin}"
+  data-title="Support"
+  data-position="right"
 ></script>`}
           />
+          <p className="text-muted-foreground text-sm">
+            Optional attributes: <code>data-title</code> overrides the header,{" "}
+            <code>data-position</code> is <code>right</code> or{" "}
+            <code>left</code>, and <code>data-accent</code> sets the bubble
+            color (default <code>#c9843a</code>).
+          </p>
         </section>
 
         <section id="llm" className="grid scroll-mt-20 gap-3">

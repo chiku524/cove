@@ -300,13 +300,14 @@ async function maybeLlmAnswer(bot: Bot, query: string, hits: SearchHit[]) {
     .join("\n\n");
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json",
+        },
+        signal: AbortSignal.timeout(12_000),
+        body: JSON.stringify({
         model: process.env.COVE_MODEL || "openai/gpt-4o-mini",
         temperature: 0.2,
         messages: [
