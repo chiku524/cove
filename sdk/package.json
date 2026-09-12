@@ -1,0 +1,12 @@
+{
+  "name": "@cove/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for the Cove support bot API",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.ts"
+  }
+}
